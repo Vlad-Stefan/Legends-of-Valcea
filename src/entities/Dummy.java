@@ -1,0 +1,88 @@
+package entities;
+
+import Main.Game;
+
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
+
+import static utilz.Constans.Directions.LEFT;
+import static utilz.Constans.Directions.*;
+import static utilz.Constans.EnemyC.*;
+import static utilz.HelpM.*;
+
+public class Dummy extends Enemy{
+
+
+    private int attackBoxOx;
+
+    public Dummy(int x, int y){
+        super(x, y, DUMMY_W, DUMMY_H, DUMMY);
+        initHitbox(32,64 );
+        initAttackBox();
+
+    }
+
+    private void initAttackBox() {
+        attackBox = new Rectangle2D.Float(x,y,64 * Game.SCALE,64 * Game.SCALE);
+        attackBoxOx = (int)(15 * Game.SCALE);
+    }
+
+    public void update(int[][] lvlData, Player player){
+        updateB(lvlData, player);
+        updateAniTick();
+        updateAttackBox();
+
+    }
+
+    private void updateAttackBox() {
+        attackBox.x = hitbox.x - attackBoxOx;
+        attackBox.y = hitbox.y;
+    }
+
+    private void updateB(int[][] lvlData, Player player){
+        if(firstupdate)
+            firstUpdC(lvlData);
+
+        if(inAir)
+            updateinAir(lvlData);
+        else {
+            switch (state){
+                case IDLE:
+                    newState(MOVING);
+                    break;
+                case MOVING:
+                    if(CanSeeP(lvlData, player)) {
+                        turnPlaye(player);
+                        if (isPlClose(player))
+                            newState(ATTACK);
+                    }
+                    move(lvlData);
+                    break;
+                case ATTACK:
+                    if(aniInd == 0)
+                        attackC = false;
+
+                    if(aniInd == 3 && !attackC)
+                        checkEH(attackBox,player);
+                    break;
+                case HIT:
+                    break;
+            }
+        }
+    }
+
+
+
+    public int flipX(){
+        if(walkD == RIGHT)
+            return width;
+        else return 0;
+    }
+
+    public int flipW(){
+        if(walkD == RIGHT)
+            return -1;
+        else return +1;
+    }
+
+}
